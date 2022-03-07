@@ -16,9 +16,12 @@
     <template id="suggestCompanyTmpl">
         <link rel="stylesheet" href="./src/styles/suggestCompany.css">
         <section class="top">
-            <div class="row">
+            <div class="row row_top">
                 <label for="party"><strong>Компания или ИП</strong></label>
                 <input id="party" name="party" type="text" placeholder="Введите название организации" />
+                <div class="suggests_wrapper">  
+                    <div class="suggests_list hidden" id="suggests_list"></div>   
+                </div>
             </div>  
         </section>
         

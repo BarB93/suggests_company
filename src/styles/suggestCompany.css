@@ -1,9 +1,18 @@
+* {
+    box-sizing: border-box;
+}
+.hidden {
+    display: none;
+}
 .top {
     margin: 0 0 30px 0;
 }
 .row {
     width: 100%;
     margin: 0 0 10px 0;
+}
+.row_top {
+    position: relative;
 }
 .row label{
     display: block;
@@ -14,5 +23,42 @@
     padding: 5px 7px;  
     font-size: 16px; 
     box-sizing: border-box;
+}
+.suggests_wrapper {
+    position: absolute; 
+    top: 100%;
+    width: 100%;
+    background: #fff;
+}
+.suggests_title {
+    margin: 5px;
+    font-size: 14px;
+    color: #6F6F6F;
+}
+.suggests_list  {
+    width: 100%;
+    border: 1px solid #000;
+    overflow: hidden;
+}
+.variant {
+    padding: 7px 5px;
+    transition: background-color .2s linear;
+}
+.variant:hover {
+    background: rgba(0,0,0,0.1);
+    cursor: pointer
+}
+.variant.selected {
+    background: rgba(0,0,0,0.1);
+}
+.variant_value {
+    margin-bottom: 1px;
+}
+.variant_bottom {
+    color: #999;
+    font-size: 14px;
+}
+.variant_value {
+
 }
 
