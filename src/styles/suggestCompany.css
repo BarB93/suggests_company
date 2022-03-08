@@ -5,7 +5,7 @@
     display: none;
 }
 .top {
-    margin: 0 0 30px 0;
+    margin: 0 0 20px 0;
 }
 .row {
     width: 100%;
@@ -31,9 +31,12 @@
     background: #fff;
 }
 .suggests_title {
-    margin: 5px;
-    font-size: 14px;
+    padding: 5px;
+    font-size: 13px;
     color: #6F6F6F;
+}
+.suggests_list label[for="party"] {
+    margin: 0;
 }
 .suggests_list  {
     width: 100%;
@@ -45,7 +48,7 @@
     transition: background-color .2s linear;
 }
 .variant:hover {
-    background: rgba(0,0,0,0.1);
+    background: rgba(0,0,0,0.2);
     cursor: pointer
 }
 .variant.selected {
@@ -57,8 +60,5 @@
 .variant_bottom {
     color: #999;
     font-size: 14px;
-}
-.variant_value {
-
 }
 

@@ -10,19 +10,34 @@ class SuggestCompany extends HTMLElement {
         this.isShowSuggests = false
         this.currentIndex = null
         this.arraySuggests = []
+        this.prevSuggest = null
 
         // Events
         this.shadowRoot.querySelector('#party').addEventListener('input', this.inputSuggest)
+        this.shadowRoot.querySelector('#party').addEventListener('focus', this.inputSuggest)
         this.shadowRoot.querySelector('#party').addEventListener('keydown', this.selectSuggest)
+        this.shadowRoot.addEventListener('click', this.handleClickVariant)
+        document.addEventListener('click', (e) => {
+            if(!e.path.some(el => el == this)) {
+                this.setVisibleSuggestsList(false)
+            }  
+        })
     }
 
     inputSuggest = (e) => {
-        this.fetchSuggestsDebounce(e.currentTarget.value)
+        const query = e.currentTarget.value
+
+        if(query === this.prevSuggest && this.arraySuggests && this.arraySuggests.length > 1) {
+            this.renderSuggestList(this.arraySuggests)
+        } else {
+            this.fetchSuggestsDebounce(query)
+        }
     }
 
     fetchSuggests = async (query) => {
-        const url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/party?count=5',
-        token = '5a4dd6f0db4a97283eff4aa376df0c657b879b46',
+        // Замените на свой API-ключ
+        const token = '5a4dd6f0db4a97283eff4aa376df0c657b879b46',
+        url = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/party?count=5',
         options = {
             method: 'POST',
             mode: 'cors',
@@ -43,13 +58,16 @@ class SuggestCompany extends HTMLElement {
             return
         }
 
+
         try {
             const response = await fetch(url, options)
             const result = await response.json()
             this.renderSuggestList(result.suggestions)
+            this.prevSuggest = query
         } catch(e) {
             console.log(e)
         }
+    
     }
 
     renderSuggestList (items) {
@@ -57,8 +75,7 @@ class SuggestCompany extends HTMLElement {
         this.arraySuggests = []
 
         $list.innerHTML = ''
-        $list.insertAdjacentHTML('beforeend', '<div class="suggests_title" disabled>Выберите вариант или продолжите ввод</div>')
-        $list.setAttribute('size', items.length + 1)
+        $list.insertAdjacentHTML('beforeend', '<label for="party"><div class="suggests_title" disabled>Выберите вариант или продолжите ввод</div></label>')
 
         items.forEach((el, index) => {
             const data = el.data
@@ -74,14 +91,19 @@ class SuggestCompany extends HTMLElement {
                 </div>`
             )
         })
+
+        if(!this.arraySuggests.length) {
+            this.setVisibleSuggestsList(false)
+            return
+        }
+
         this.setVisibleSuggestsList(true)
     }
 
     selectSuggest = (e) => {
         if(!this.isShowSuggests) return
-        e.preventDefault()
 
-        const UP_KEY = 38, DOWN_KEY = 40, ENTER_KEY = 13;
+        const UP_KEY = 38, DOWN_KEY = 40, ENTER_KEY = 13, ESC_KEY = 27;
         const variants = this.shadowRoot.querySelectorAll('.variant')
 
         switch(e.keyCode) {
@@ -114,13 +136,36 @@ class SuggestCompany extends HTMLElement {
 
                 break;
             case ENTER_KEY:
-                
+                this.enterSuggest(this.currentIndex)    
+                this.setVisibleSuggestsList(false)
+
+                break;
+            case ESC_KEY: 
+                this.setVisibleSuggestsList(false)
+
                 break;
         }
     }
 
-    enterSuggest = (data) => {
-        
+    enterSuggest = (index) => {
+        const data = this.arraySuggests[index].data,
+              $nameShort = this.shadowRoot.querySelector('#name_short'),
+              $nameFull = this.shadowRoot.querySelector('#name_full'),
+              $innKpp = this.shadowRoot.querySelector('#inn_kpp'),
+              $address = this.shadowRoot.querySelector('#address')
+
+        $nameShort.value =  data.name.short_with_opf || data.name.short || ''
+        $nameFull.value = data.name.full_with_opf || data.name.full || ''
+        $innKpp.value = [data.inn, data.kpp].join(' / ')
+        $address.value =  data.address.data.source || ''
+
+        this.setVisibleSuggestsList(false)
+    }
+
+    handleClickVariant = (e) => {
+        const variant =  e.target.closest('.variant')
+            if(!variant) return
+            this.enterSuggest(variant.getAttribute('data-val'))
     }
 
     setVisibleSuggestsList = (show = false) => {
@@ -137,7 +182,7 @@ class SuggestCompany extends HTMLElement {
     }
 }
 
-customElements.define('time-formatted', SuggestCompany);
+customElements.define('suggests-company', SuggestCompany);
 
 // modules in real world =)
 function debounce (fn, ms) {
